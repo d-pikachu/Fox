@@ -7,11 +7,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class Fox {
 	static boolean hadError = false;
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
 		if(args.length > 1){
 			System.out.println("Usage: Fox [script]");
 			System.exit(64);
