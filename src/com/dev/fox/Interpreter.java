@@ -1,6 +1,16 @@
 package com.dev.fox;
 
 public class Interpreter implements Expr.Visitor<Object>{
+	
+	void interpreter(Expr expression){
+		try{
+			Object value = evaluate(expression);
+			System.out.println(stringify(value));
+		} catch(RuntimeError error) {
+			Fox.runtimeError(error);
+		}
+	}
+	
 	@Override
 	public Object visitLiteralExpr(Expr.Literal expr){
 		return expr.value;
@@ -11,7 +21,6 @@ public class Interpreter implements Expr.Visitor<Object>{
 		return evaluate(expr.expression);
 	}
 	
-	@Override
 	private Object evaluate(Expr expr){
 		return expr.accept(this);
 	}
@@ -25,14 +34,19 @@ public class Interpreter implements Expr.Visitor<Object>{
 			case BANG_EQUAL: return !isEqual(left, right);
 			case EQUAL_EQUAL: return isEqual(left, right);
 			case GREATER:
+				checkNumberOperands(expr.operator, left, right);
 				return (double)left > (double)right;
 			case GREATER_EQUAL:
+				checkNumberOperands(expr.operator, left, right);
 				return (double)left >= (double)right;
 			case LESS:
+				checkNumberOperands(expr.operator, left, right);
 				return (double)left < (double)right;
 			case LESS_EQUAL:
+				checkNumberOperands(expr.operator, left, right);
 				return (double)left <= (double)right;
 			case MINUS: 
+				checkNumberOperands(expr.operator, left, right);
 				checkNumberOperand(expr.operator, right);
 				return (double)left - (double)right;
 			case PLUS:
@@ -43,8 +57,10 @@ public class Interpreter implements Expr.Visitor<Object>{
 					return (String)left + (String)right;
 				}
 			case SLASH:
+				checkNumberOperands(expr.operator, left, right);
 				return (double)left / (double)right;
 			case STAR:
+				checkNumberOperands(expr.operator, left, right);
 				return (double)left * (double)right;
 		}
 		
@@ -67,9 +83,15 @@ public class Interpreter implements Expr.Visitor<Object>{
 	
 	private void checkNumberOperand(Token operator, Object operand){
 		if(operand instanceof Double) return;
-		return new RuntimeError(operator, "Operand must be a number");
+		throw new RuntimeError(operator, "Operand must be a number");
 	}
 	
+	private void checkNumberOperands(Token operator,Object left,Object right){
+		if(left instanceof Double && right instanceof Double) 
+			return;
+		
+		throw new RuntimeError(operator, " Operands must be numbers.");
+	}
 	private boolean isTruthy(Object object){
 		if(object == null) return false;
 		if(object instanceof Boolean) return (boolean)object;
@@ -77,9 +99,22 @@ public class Interpreter implements Expr.Visitor<Object>{
 	}
 	
 	private boolean isEqual(Object a, Object b){
-		if(a == null && b == null) return null;
+		if(a == null && b == null) return true;
 		if(a == null) return false;
 		
 		return a.equals(b);
+	}
+	
+	private String stringify(Object object){
+		if(object == null ) return "nil";
+		
+		if(object instanceof Double){
+			String text = object.toString();
+			if(text.endsWith(".o")){
+				text = text.substring(0, text.length() - 2);
+			}
+		return text;
+		}
+		return object.toString();
 	}
 }
