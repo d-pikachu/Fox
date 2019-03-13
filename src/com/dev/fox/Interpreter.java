@@ -33,6 +33,7 @@ public class Interpreter implements Expr.Visitor<Object>{
 			case LESS_EQUAL:
 				return (double)left <= (double)right;
 			case MINUS: 
+				checkNumberOperand(expr.operator, right);
 				return (double)left - (double)right;
 			case PLUS:
 				if(left instanceof Double && right instanceof Double){
@@ -62,6 +63,11 @@ public class Interpreter implements Expr.Visitor<Object>{
 		}
 		
 		return null;
+	}
+	
+	private void checkNumberOperand(Token operator, Object operand){
+		if(operand instanceof Double) return;
+		return new RuntimeError(operator, "Operand must be a number");
 	}
 	
 	private boolean isTruthy(Object object){
