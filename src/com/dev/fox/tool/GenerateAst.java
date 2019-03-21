@@ -21,6 +21,11 @@ public class GenerateAst {
 		"Unary : Token operator, Expr right"
 		));
 		
+		defineAst(outputDir, "Expr_new", Arrays.asList(
+				"Literal : Object value",
+				"Unary : Token operator, Expr right"
+				));
+		
 	}
 	
 	private static void defineAst(String outputDir, String baseName, List<String> types)
